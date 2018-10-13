@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <title>Conway's Game of Life</title>
+    <script src="index.js"></script>
+  </head>
+  <body>
+    <div style="text-align: center">
+      <h1>Conway's Game of Life</h1>
+      <div>
+        <p>Status: <span id="status"></span></p>
+        <p>Generations: <span id="generations"></span></p>
+        <canvas style="border: 1px solid gray" id="root" width="1000" height="1000"></canvas>
+        <div>
+          <button style="margin-top: 10px" onclick="startRun()">Start</button>
+          <button style="margin-top: 10px" onclick="stopRun()">Stop</button>
+          <button style="margin-top: 10px" onclick="reset()">Reset</button>
+          <input type="checkbox" id="randomize"></input> Randomize
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
