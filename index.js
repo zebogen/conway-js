@@ -2,12 +2,12 @@ const ROW_COUNT = 100;
 const COLUMN_COUNT = 150;
 const CELL_SIZE = 5;
 
-let state;
+let state, canvas;
 
 document.addEventListener('DOMContentLoaded', () => init());
 
 function init() {
-  const canvas = document.getElementById('root');
+  canvas = document.getElementById('root');
   canvas.height = ROW_COUNT * CELL_SIZE;
   canvas.width = COLUMN_COUNT * CELL_SIZE;
 
@@ -15,20 +15,26 @@ function init() {
   canvas.addEventListener('mouseup', handleMouseup);
   canvas.addEventListener('mousemove', handleMousemove);
 
-  state = getInitialState();
+  state = getInitialState(true);
 
-  requestAnimationFrame(() => render(canvas));
+  paintGrid();
+
+  requestAnimationFrame(() => render());
 }
 
 function getInitialState(randomize = false) {
   return {
     grid: Array.from({ length: ROW_COUNT }).map((_, i) => (
-      Array.from({ length: COLUMN_COUNT }).map((_, j) => ({ i, j, alive: Math.random() < (randomize ? 0.1 : 0) }))
+      Array.from({ length: COLUMN_COUNT }).map((_, j) => ({ i, j, alive: Math.random() < (randomize ? currentRandomizationValue() : 0) }))
     )),
     running: false,
     mouseDown: false,
     generations: 0,
   };
+}
+
+function currentRandomizationValue() {
+  return document.getElementById('randomizer-number').value / 100;
 }
 
 function handleMousedown(event) {
@@ -61,29 +67,40 @@ function cellsFromMouseEvent(event) {
 
 function startRun() {
   state.running = true;
+  state.startTime = Date.now();
 }
 
 function stopRun() {
   state.running = false;
+
 }
 
 function reset() {
   const randomize = document.getElementById('randomize').checked;
   state = getInitialState(randomize);
+  paintGrid()
 }
 
-function render(canvas) {
-  paintGrid(canvas);
+function onRandomizeChange(event) {
+  const randomizerFields = document.getElementById('randomizerFields');
+  if (event.target.checked) {
+    randomizerFields.removeClass('hidden');
+  } else {
+    randomizerFields.addClass('hidden');
+  }
+}
 
+function render() {
   if (state.running) {
-    state.grid = tick();
+    tick();
     state.generations += 1;
   }
 
   updateStatusText();
   updateGenerationCount();
+  updateFramesPerSecond();
 
-  requestAnimationFrame(() => render(canvas));
+  requestAnimationFrame(() => render());
 }
 
 function updateStatusText() {
@@ -96,28 +113,44 @@ function updateGenerationCount() {
   generationText.innerText = state.generations;
 }
 
-function paintGrid(canvas) {
-  const ctx = canvas.getContext('2d');
+function updateFramesPerSecond() {
+  const fpsText = document.getElementById('frames-per-second');
+  fpsText.innerText =
+    state.running ? state.generations / ((Date.now() - state.startTime) / 1000)
+                  : 0;
+}
 
+function paintGrid() {
   state.grid.forEach(row => (
-    row.forEach((cell) => {
-      ctx.fillStyle = cell.alive ? 'black' : 'white';
-      ctx.fillRect(cell.j * CELL_SIZE, cell.i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    })
+    row.forEach((cell) => paintCell(cell.i, cell.j, cell.alive))
   ));
 }
 
+function paintCell(i, j, alive) {
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = alive ? 'black' : 'white';
+  ctx.fillRect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+}
+
 function tick() {
-  return state.grid.map((row, rowIndex) => (
-    row.map((cell, columnIndex) => {
+  state.grid.forEach((row, rowIndex) => {
+    row.forEach((cell, columnIndex) => {
       const liveNeighbors = liveNeighborCount(rowIndex, columnIndex);
-      return {
-        ...cell,
-        alive: cell.alive ? [2, 3].includes(liveNeighbors)
-                          : liveNeighbors === 3
-      };
-    })
-  ));
+      cell.newAlive = cell.alive ? [2, 3].includes(liveNeighbors)
+                                 : liveNeighbors === 3;
+    });
+  });
+
+  state.grid.forEach((row) => {
+    row.forEach((cell) => {
+      if (cell.newAlive !== cell.alive) {
+        paintCell(cell.i, cell.j, cell.newAlive);
+        cell.alive = cell.newAlive;
+      }
+      cell.newAlive = undefined;
+    });
+  });
 }
 
 function getCell(i, j) {

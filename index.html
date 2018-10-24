@@ -2,6 +2,19 @@
   <head>
     <title>Conway's Game of Life</title>
     <script src="index.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .action-button {
+        margin-top: 10px;
+      }
+    </style>
   </head>
   <body>
     <div style="text-align: center">
@@ -9,12 +22,18 @@
       <div>
         <p>Status: <span id="status"></span></p>
         <p>Generations: <span id="generations"></span></p>
+        <p>FPS: <span id="frames-per-second"></span></p>
         <canvas style="border: 1px solid gray" id="root" width="1000" height="1000"></canvas>
         <div>
-          <button style="margin-top: 10px" onclick="startRun()">Start</button>
-          <button style="margin-top: 10px" onclick="stopRun()">Stop</button>
-          <button style="margin-top: 10px" onclick="reset()">Reset</button>
-          <input type="checkbox" id="randomize"></input> Randomize
+          <button class="action-button" onclick="startRun()">Start</button>
+          <button class="action-button" onclick="stopRun()">Stop</button>
+          <button class="action-button" onclick="reset()">Reset</button>
+          <div>
+            <input type="checkbox" id="randomize" onchange="onRandomizeChange()" checked="true"></input> Randomize
+            <div id="randomizer-fields">
+              Start with <input type="number" min="0" max="100" id="randomizer-number" value="10" size="2"></input>% of cells alive
+            </div>
+          </div>
         </div>
       </div>
     </div>
