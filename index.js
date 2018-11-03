@@ -19,7 +19,7 @@ function init() {
 
   paintGrid();
 
-  requestAnimationFrame(() => render());
+  render();
 }
 
 function getInitialState(randomize = false) {
@@ -72,7 +72,6 @@ function startRun() {
 
 function stopRun() {
   state.running = false;
-
 }
 
 function reset() {
@@ -116,7 +115,7 @@ function updateGenerationCount() {
 function updateFramesPerSecond() {
   const fpsText = document.getElementById('frames-per-second');
   fpsText.innerText =
-    state.running ? state.generations / ((Date.now() - state.startTime) / 1000)
+    state.running ? Math.floor(state.generations / ((Date.now() - state.startTime) / 1000))
                   : 0;
 }
 
