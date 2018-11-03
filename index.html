@@ -7,6 +7,10 @@
         font-family: sans-serif;
       }
 
+      canvas {
+        border: 1px solid lightgray;
+      }
+
       .hidden {
         display: none;
       }
@@ -23,7 +27,7 @@
         <p>Status: <span id="status"></span></p>
         <p>Generations: <span id="generations"></span></p>
         <p>FPS: <span id="frames-per-second"></span></p>
-        <canvas style="border: 1px solid gray" id="root" width="1000" height="1000"></canvas>
+        <canvas id="root" width="1000" height="1000"></canvas>
         <div>
           <button class="action-button" onclick="startRun()">Start</button>
           <button class="action-button" onclick="stopRun()">Stop</button>

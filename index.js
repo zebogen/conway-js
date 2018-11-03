@@ -1,6 +1,9 @@
 const ROW_COUNT = 100;
 const COLUMN_COUNT = 150;
 const CELL_SIZE = 5;
+const CELL_BORDER_SIZE = 1;
+const BORDER_COLOR = '#bcd9e0';
+const CELL_SIZE_WITH_BORDER = CELL_SIZE + CELL_BORDER_SIZE;
 
 let state, canvas;
 
@@ -8,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => init());
 
 function init() {
   canvas = document.getElementById('root');
-  canvas.height = ROW_COUNT * CELL_SIZE;
-  canvas.width = COLUMN_COUNT * CELL_SIZE;
+  canvas.height = ROW_COUNT * CELL_SIZE_WITH_BORDER;
+  canvas.width = COLUMN_COUNT * CELL_SIZE_WITH_BORDER;
 
   canvas.addEventListener('mousedown', handleMousedown);
   canvas.addEventListener('mouseup', handleMouseup);
@@ -17,9 +20,17 @@ function init() {
 
   state = getInitialState(true);
 
+  paintBackground();
   paintGrid();
 
   render();
+}
+
+function paintBackground() {
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = BORDER_COLOR;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function getInitialState(randomize = false) {
@@ -49,13 +60,16 @@ function handleMouseup() {
 function handleMousemove(event) {
   if (state.mouseDown) {
     const cells = cellsFromMouseEvent(event);
-    cells.forEach(cell => cell.alive = true);
+    cells.forEach((cell) => {
+      cell.alive = true;
+      paintCell(cell.i, cell.j, cell.alive);
+    });
   }
 }
 
 function cellsFromMouseEvent(event) {
-  const column = Math.floor(event.offsetX / CELL_SIZE);
-  const row = Math.floor(event.offsetY / CELL_SIZE);
+  const column = Math.floor(event.offsetX / CELL_SIZE_WITH_BORDER);
+  const row = Math.floor(event.offsetY / CELL_SIZE_WITH_BORDER);
 
   return [
     getCell(row, column),
@@ -129,7 +143,7 @@ function paintCell(i, j, alive) {
   const ctx = canvas.getContext('2d');
 
   ctx.fillStyle = alive ? 'black' : 'white';
-  ctx.fillRect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+  ctx.fillRect(j * CELL_SIZE_WITH_BORDER, i * CELL_SIZE_WITH_BORDER, CELL_SIZE, CELL_SIZE);
 }
 
 function tick() {
